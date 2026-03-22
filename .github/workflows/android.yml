@@ -25,22 +25,15 @@ jobs:
 
     - run: gradle assembleRelease
 
-    - name: Decode keystore
-      run: |
-        echo "${{ secrets.SIGNING_KEY }}" | base64 -d > /tmp/keystore.jks
-
     - name: Sign app APK
       id: sign_app
-      uses: ilharp/sign-android-release@nightly
+      uses: r0adkll/sign-android-release@v1
       with:
-        releaseDir: app/build/outputs/apk/release
-        signingKey: ${{ secrets.SIGNING_KEY }}
-        keyAlias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        buildToolsVersion: 36.0.0
-        
-    - name: Clean up
-      run: rm /tmp/keystore.jks
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
