@@ -30,6 +30,11 @@ jobs:
         mkdir -p app/build/outputs/apk/release
         find app/build/outputs -name "*.apk" -exec mv {} app/build/outputs/apk/release/ \;
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        packages: 'build-tools;29.0.3'
+
     - name: Get latest build-tools version
       id: get_build_tools
       run: |
