@@ -25,6 +25,17 @@ jobs:
 
     - run: gradle assembleRelease
 
+    - name: Get latest build-tools version
+      id: get_build_tools
+      run: |
+        versions=$(ls $ANDROID_HOME/build-tools 2>/dev/null | sort -V)
+        if [ -z "$versions" ]; then
+          echo "No build-tools found. Please install one."
+          exit 1
+        fi
+        latest=$(echo "$versions" | tail -n1)
+        echo "latest_build_tools=$latest" >> $GITHUB_OUTPUT
+
     - name: Sign app APK
       id: sign_app
       uses: r0adkll/sign-android-release@v1
@@ -34,6 +45,7 @@ jobs:
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
+        buildToolsVersion: ${{ steps.get_build_tools.outputs.latest_build_tools }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
