@@ -30,6 +30,13 @@ jobs:
         echo "Contents of app/build/outputs:"
         find app/build/outputs -type f || echo "No files found"
 
+    - name: Check secrets
+      run: |
+        [ -n "${{ secrets.SIGNING_KEY }}" ] && echo "SIGNING_KEY exists" || echo "SIGNING_KEY missing"
+        [ -n "${{ secrets.KEY_ALIAS }}" ] && echo "KEY_ALIAS exists" || echo "KEY_ALIAS missing"
+        [ -n "${{ secrets.KEYSTORE_PASSWORD }}" ] && echo "KEYSTORE_PASSWORD exists" || echo "KEYSTORE_PASSWORD missing"
+        [ -n "${{ secrets.KEY_PASSWORD }}" ] && echo "KEY_PASSWORD exists" || echo "KEY_PASSWORD missing"
+
     - name: Move APKs to expected directory (if needed)
       run: |
         mkdir -p app/build/outputs/apk/release
