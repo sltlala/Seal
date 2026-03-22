@@ -1,0 +1,54 @@
+name: Build Release APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - uses: gradle/actions/setup-gradle@v3
+
+    - name: Build APK
+      run: ./gradlew :app:assembleRelease   # 根据实际模块名调整
+
+    - name: List build outputs (debug)
+      run: |
+        echo "Contents of app/build/outputs:"
+        find app/build/outputs -type f || echo "No files found"
+
+    - name: Move APKs to expected directory (if needed)
+      run: |
+        mkdir -p app/build/outputs/apk/release
+        find app/build/outputs -name "*.apk" -exec mv {} app/build/outputs/apk/release/ \;
+
+    - name: Sign app APK
+      id: sign_app
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: signed-apks
+        path: app/build/outputs/apk/release/*-signed.apk   # 签名后文件通常带 -signed 后缀
+        if-no-files-found: error
+        retention-days: 20
