@@ -23,7 +23,12 @@ jobs:
 
     - uses: gradle/actions/setup-gradle@v3
 
-    - run: gradle assembleRelease
+    - run: ./gradlew :app:assembleRelease
+
+    - name: Move APKs to expected directory (if needed)
+      run: |
+        mkdir -p app/build/outputs/apk/release
+        find app/build/outputs -name "*.apk" -exec mv {} app/build/outputs/apk/release/ \;
 
     - name: Get latest build-tools version
       id: get_build_tools
